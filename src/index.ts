@@ -21,15 +21,21 @@ const configs = {
 }
 
 const send = (msg: string, color = '#5E2D50') => {
-    console.log(msg)
     if (!process.env.webhookUrl) return
     const embeds = [
         {
             title: "Log",
             description: `Un log a été reçu : \`\`\`${msg}\`\`\``,
-            color: color
+            color: parseInt(color.replace('#', ''), 16)
         }
     ]
+
+    const config = {
+        method: "POST",
+        url: process.env.webhookUrl,
+        headers: { "Content-Type": "application/json" },
+        data: JSON.stringify({ embeds }),
+    }
 
     axios(process.env.webhookUrl, {
         headers: {
