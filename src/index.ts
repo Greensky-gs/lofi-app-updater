@@ -117,14 +117,15 @@ const pushStation = async(change: change<'stationAdd'>) => {
         const path = `./${infos.id}.mp3`;
         ytdl(infos.url, { filter: 'audioonly', quality: 'highestaudio' })
             .pipe(createWriteStream(path))
-            .on('finish', () => {
+            .on('finish', async() => {
                 const file = readFileSync(path)
-                uploadBytes(storageRef(storage, path), file).catch(send)
-                
-                set(ref(db, `${configs.dbRef}/${infos.id}`), infos).catch((error) => {
-                    send(error)
-                    return null
-                })
+                await Promise.all([
+                    uploadBytes(storageRef(storage, path), file).catch(send),
+                    set(ref(db, `${configs.dbRef}/${infos.id}`), infos).catch((error) => {
+                        send(error)
+                        return null
+                    })
+                ])
 
                 if (existsSync(path)) rmSync(path)
 
