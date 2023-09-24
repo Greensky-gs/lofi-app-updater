@@ -30,13 +30,6 @@ const send = (msg: string, color = '#5E2D50') => {
         }
     ]
 
-    const config = {
-        method: "POST",
-        url: process.env.webhookUrl,
-        headers: { "Content-Type": "application/json" },
-        data: JSON.stringify({ embeds }),
-    }
-
     axios(process.env.webhookUrl, {
         headers: {
             'Content-Type': 'application/json'
