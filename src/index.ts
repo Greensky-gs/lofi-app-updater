@@ -120,7 +120,7 @@ const pushStation = async(change: change<'stationAdd'>) => {
             .on('finish', async() => {
                 const file = readFileSync(path)
                 await Promise.all([
-                    uploadBytes(storageRef(storage, path), file).catch(send),
+                    uploadBytes(storageRef(storage, path.replace('./', '')), file).catch(send),
                     set(ref(db, `${configs.dbRef}/${infos.id}`), infos).catch((error) => {
                         send(error)
                         return null
