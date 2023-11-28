@@ -92,7 +92,7 @@ const pushStation = async(change: change<'stationAdd'>) => {
             const section = cp.shift()
             if (!section) return { authors: [], rest: change.name }
     
-            return { authors: section.split(/ (x|&) /).map(sc => sc.replace(/^ (.+)/, '$1').replace(/(.+) $/, '$1')), rest: cp.join(' ') }
+            return { authors: section.split(/ (x|&) /).map(sc => sc.replace(/^ (.+)/, '$1').replace(/(.+) $/, '$1')).filter(x => x.length > 0), rest: cp.join(' ') }
         }
         const split = (): [string[], string, string] => {
             const { authors, rest: title } = getAuthors()
