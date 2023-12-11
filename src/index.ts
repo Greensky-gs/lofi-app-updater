@@ -2,20 +2,19 @@ import { Wrapper, change } from "lofi-girl-api-wrapper";
 import { rmSync, readFileSync, createWriteStream, existsSync } from 'node:fs'
 import confs from './configs.json'
 import { config } from 'dotenv'
-import { initializeApp } from 'firebase/app'
-import { getDatabase, ref, set, get, onValue, remove } from 'firebase/database'
-import { getStorage, ref as storageRef, uploadBytes } from 'firebase/storage'
 import { station } from "./typings/station";
 import ytdl, { getBasicInfo, getVideoID } from "ytdl-core";
 import axios from "axios";
+import * as firebase from 'firebase-admin'
 config()
 
-const app = initializeApp({
+const app = firebase.initializeApp({
     databaseURL: process.env.dbUrl,
-    storageBucket: process.env.bucketUrl
+    storageBucket: process.env.bucketUrl,
+    credential: firebase.credential.cert(require('../credits.json'))
 })
-const db = getDatabase(app)
-const storage = getStorage(app)
+const db = firebase.database(app)
+const storage = firebase.storage(app)
 const configs = {
     dbRef: 'stations'
 }
@@ -42,7 +41,7 @@ const send = (msg: string, color = '#5E2D50') => {
 }
 const getStation = (id: string): Promise<station<false> | null> => {
     return new Promise(resolve => {
-        get(ref(db, `${configs.dbRef}/${id}`)).then((snap) => {
+        db.ref('stations').child(id).get().then((snap) => {
             if (snap.exists()) {
                 const value = snap.val() as station<true>
                 resolve({
@@ -119,20 +118,30 @@ const pushStation = async(change: change<'stationAdd'>) => {
             .pipe(createWriteStream(path))
             .on('finish', async() => {
                 const file = readFileSync(path)
-                await Promise.all([
-                    uploadBytes(storageRef(storage, path.replace('./', '')), file).catch(send),
-                    set(ref(db, `${configs.dbRef}/${infos.id}`), infos).catch((error) => {
+                const fileRef = storage.bucket().file(path.replace('./', ''))
+
+                const call = async() => {
+                    await db.ref('stations').child(infos.id).set(infos).catch((error) => {
+                        console.log("🚀 ~ file: index.ts:135 ~ call ~ error:", error)
                         send(error)
                         return null
                     })
-                ])
 
-                if (existsSync(path)) rmSync(path)
+                    if (existsSync(path)) rmSync(path)
+    
+                    send(`Pushed ${change.name} ${change.emoji}`)
+                    resolve('ended')
+                }
 
-                send(`Pushed ${change.name} ${change.emoji}`)
-                resolve('ended')
+                const up = await storage.bucket().upload(`${infos.id}.mp3`, {
+                    destination: path.replace('./', ''),
+                    metadata: {
+                        contentType: 'audio/mpeg'
+                    }
+                }).then(call)
             }).on('error', (err) => {
-                send(err.message)
+                console.log("🚀 ~ file: index.ts:154 ~ .on ~ err:", err)
+                send(err?.message ?? err?.name ?? err as any ?? '')
                 if (existsSync(path)) rmSync(path)
                 resolve('errored')
             })
@@ -145,7 +154,7 @@ const sync = () => {
         let stations = confs.stations
         let stored: string[] = []
         
-        onValue(ref(db, `${configs.dbRef}`), (snap) => {
+        db.ref('stations').on('value', (snap) => {
             stored = Object.keys(snap.val())
         })
 
@@ -206,6 +215,6 @@ listener.onReceive((type, change) => {
         const id = getVideoID(change.url)
         if (!id) return send(`No id found to delete ${change.url}`)
 
-        remove(ref(db, `${configs.dbRef}/${id}`)).catch(send);
+        db.ref('stations').child(`${configs.dbRef}/${id}`).remove().catch(send);
     }
 })
