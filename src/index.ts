@@ -117,28 +117,40 @@ const pushStation = async(change: change<'stationAdd'>) => {
         ytdl(infos.url, { filter: 'audioonly', quality: 'highestaudio' })
             .pipe(createWriteStream(path))
             .on('finish', async() => {
-                const file = readFileSync(path)
-                const fileRef = storage.bucket().file(path.replace('./', ''))
+                try {
+                    const uploadPath = path.replace('./', '');
+                    const fileRef = storage.bucket().file(uploadPath)
 
-                const call = async() => {
-                    await db.ref('stations').child(infos.id).set(infos).catch((error) => {
-                        console.log("🚀 ~ file: index.ts:135 ~ call ~ error:", error)
-                        send(error)
-                        return null
-                    })
-
-                    if (existsSync(path)) rmSync(path)
-    
-                    send(`Pushed ${change.name} ${change.emoji}`)
-                    resolve('ended')
-                }
-
-                const up = await storage.bucket().upload(`${infos.id}.mp3`, {
-                    destination: path.replace('./', ''),
-                    metadata: {
-                        contentType: 'audio/mpeg'
-                    }
-                }).then(call)
+                    // Upload the audio file to Firebase Storage
+                    await storage.bucket().upload(path, {
+                      destination: uploadPath,
+                      metadata: {
+                        contentType: 'audio/mpeg',
+                      },
+                    });
+              
+                    // Set information in the Realtime Database
+                    await db.ref('stations').child(infos.id).set(infos);
+              
+                    // Get the download URL for the uploaded file
+                    const [url] = await fileRef.getSignedUrl({
+                      action: 'read',
+                      expires: '2030-01-01',
+                    });
+              
+                    // Set the download URL in the Realtime Database
+                    await db.ref('refs').child(infos.id).set(url);
+              
+                    // Clean up local file
+                    if (existsSync(path)) rmSync(path);
+              
+                    send(`Pushed ${change.name} ${change.emoji}`);
+                    resolve('ended');
+                  } catch (error) {
+                    console.error("Error:", error);
+                    send(error as string);
+                    resolve('errored');
+                  }
             }).on('error', (err) => {
                 console.log("🚀 ~ file: index.ts:154 ~ .on ~ err:", err)
                 send(err?.message ?? err?.name ?? err as any ?? '')
