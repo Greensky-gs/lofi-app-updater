@@ -3090,13 +3090,6 @@
             "feedbacks": []
         },
         {
-            "url": "https://www.youtube.com/watch?v=pb39n_bEHyA",
-            "name": "Gerardo Millán - Quantum Serenity (lofi hip hop/relaxing beats)",
-            "type": "playlist",
-            "emoji": "🪐",
-            "feedbacks": []
-        },
-        {
             "url": "https://www.youtube.com/watch?v=EeRfSNx5RhE",
             "name": "Lofi Girl x Chess.com - chill beats to play chess to (lofi hip hop/relaxing beats)",
             "type": "playlist",
@@ -3125,17 +3118,24 @@
             "feedbacks": []
         },
         {
-            "url": "https://www.youtube.com/watch?v=lHpYyYtkmrw",
-            "name": "Christmas lofi radio - cozy beats to get festive to (lofi hip hop/cozy beats)",
-            "type": "radio",
-            "emoji": "🎄",
-            "feedbacks": []
-        },
-        {
             "url": "https://www.youtube.com/watch?v=ZC0GPn1_0ls",
             "name": "azayaka - Keeping Time (lofi hip hop/relaxing beats)",
             "type": "playlist",
             "emoji": "🌳",
+            "feedbacks": []
+        },
+        {
+            "url": "https://www.youtube.com/watch?v=WJjZnyBmGCs",
+            "name": "idylla - midnight at the lake (lofi hip hop/sleeping beats)",
+            "type": "playlist",
+            "emoji": "🌘",
+            "feedbacks": []
+        },
+        {
+            "url": "https://www.youtube.com/watch?v=tLS2SwC7cyc",
+            "name": "Hoogway - Life Is For Living (lofi hip hop/relaxing beats)",
+            "type": "playlist",
+            "emoji": "🍁",
             "feedbacks": []
         }
     ],
@@ -3167,21 +3167,11 @@
         }
     ],
     "recommendation": {
-        "url": "https://www.youtube.com/watch?v=QU_1o5j2PhU",
-        "name": "Yasumu - until forever (lofi hip hop/relaxing beats)",
+        "url": "https://www.youtube.com/watch?v=pb39n_bEHyA",
+        "name": "Gerardo Millán - Quantum Serenity (lofi hip hop/relaxing beats)",
         "type": "playlist",
-        "emoji": "🏔️",
-        "feedbacks": [
-            {
-                "user_id": "386479065307152384",
-                "comments": "Really nice song, I personaly liked the last one \"until forever\", very melodical",
-                "keywords": [
-                    "chill",
-                    "memories",
-                    "week-end"
-                ]
-            }
-        ]
+        "emoji": "🪐",
+        "feedbacks": []
     },
     "testers": [
         {
